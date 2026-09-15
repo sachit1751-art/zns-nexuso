@@ -1,0 +1,5 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   globals.css — Comment header only. CSS partials are imported via layout.jsx
+   to work around Next.js 15 App Router dev-mode CSS @import limitation.
+   Edit individual files in app/styles/ for section-specific changes.
+────────────────────────────────────────────────────────────────────────────── */

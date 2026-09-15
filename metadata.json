@@ -1,0 +1,6 @@
+{
+  "name": "Truus",
+  "description": "Creative advertising agency specialising in brand strategy, social media, video production, and activations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
