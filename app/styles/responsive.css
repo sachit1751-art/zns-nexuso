@@ -1,29 +1,5 @@
-/* ─── Tablet (769px – 1200px) ────────────────────────────────────────────── */
-@media (min-width: 769px) and (max-width: 1348px) {
-  /* changed the max-width to a better brake point that also accommodate .card-green */
-  .cards-wrapper {
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
-    padding-bottom: 50px;
-    gap: 30px;
-    overflow: visible;
-  }
-
-  .card {
-    position: relative;
-    left: auto !important;
-    top: auto !important;
-    transform: none !important;
-    width: 90%;
-    max-width: 400px;
-    height: auto;
-    min-height: 400px;
-    margin-bottom: 20px;
-  }
-}
+/* ─── Tablet & Laptop Layout (≥ 769px) ─────────────────────────────────── */
+/* Cards keep their iconic fanned-out deck layout across laptops and desktops */
 
 /* ─── Medium screens (≤ 900px) ───────────────────────────────────────────── */
 @media (max-width: 900px) {
@@ -43,29 +19,188 @@
   }
 }
 
+/* ─── Desktop and Mobile Display Helpers ───────────────────────────────── */
+.desktop-only {
+  display: flex !important;
+}
+.mobile-only {
+  display: none !important;
+}
+
 /* ─── Mobile (≤ 768px) ───────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  /* ── Navbar ─────────────────────── */
-  .navbar {
-    padding: 14px 16px;
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: flex !important;
   }
 
-  .logo-truus {
-    width: 100px;
+  /* ── Navbar ─────────────────────── */
+  .navbar {
+    padding: 12px 16px;
+    gap: 8px;
+    background: transparent;
+    transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-left, .nav-center, .nav-right {
+    flex: 1;
+  }
+
+  .nav-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   .logo-work-container {
-    width: 48px;
-    height: 44px;
+    display: flex;
+    align-items: center;
+    height: 38px;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .nav-bar__work-blob-svg {
+    position: static;
+    width: 24px !important;
+    height: 24px !important;
+    margin: 0 !important;
+    left: auto !important;
+    top: auto !important;
   }
 
   .logo-work-text {
-    font-size: 1.4rem;
-    margin-left: 52px;
+    font-size: 1.05rem !important;
+    padding-left: 0 !important;
+    margin-left: 0;
+  }
+
+  .nav-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .nav-logo-link {
+    gap: 6px;
+    padding: 2px 4px;
+  }
+
+  .nav-brand-name {
+    font-size: 1.05rem;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .nav-right-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav-small-spark {
+    display: none !important;
+  }
+
+  .nav-hire-btn {
+    padding: 6px 13px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .nav-left .nav-popout {
+    position: fixed;
+    top: 64px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+    max-width: min(340px, calc(100vw - 28px));
+    height: auto;
+    border-radius: 18px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .nav-left .nav-popout-inner {
+    padding: 20px 16px;
+    gap: 10px;
+  }
+
+  .nav-work-title {
+    font-size: 1.15rem;
+  }
+
+  .nav-work-desc {
+    font-size: 0.85rem;
+  }
+
+  .nav-work-quick-link {
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
 
   .nav-bar__whatsapp-svg {
-    width: 26px;
+    width: 24px;
+  }
+
+  /* ── Motion Card Section (Mobile Fixes) ── */
+  .motion-card-section {
+    padding: 60px 20px 40px !important;
+  }
+  
+  .motion-card__heading {
+    margin: 0 auto 30px !important;
+  }
+  
+  .motion-card__title {
+    font-size: 3.5rem !important;
+    letter-spacing: -1.5px !important;
+    line-height: 1 !important;
+  }
+  
+  .motion-card__subtitle {
+    font-size: 3.8rem !important;
+    letter-spacing: -1px !important;
+    top: -5px !important;
+    display: block !important;
+    margin-top: 5px !important;
+  }
+  
+  .motion-card__underline-svg {
+    max-width: 90vw !important;
+    margin-top: -20px !important;
+  }
+  
+  .motion-card__sticker--top {
+    right: -20px !important;
+    width: 60px !important;
+  }
+  
+  .motion-card__cards-area {
+    height: 380px !important;
+    margin: 20px auto 40px !important;
+  }
+  
+  .motion-card__blob {
+    width: 280px !important;
+    height: 240px !important;
+    transform: translate(-95%, -45%) !important;
+  }
+
+  .motion-card__floating-label {
+    padding: 4px 12px !important;
+  }
+  
+  .motion-card__floating-text {
+    font-size: 0.8rem !important;
   }
 
   /* ── Header Hero ────────────────── */
@@ -77,6 +212,43 @@
 
   .header-content h1 {
     font-size: 2rem;
+  }
+
+  /* ── Horizontal Words Section (Mobile Fixes) ── */
+  .horizontal-words__h2 {
+    font-size: 16vw !important;
+  }
+
+  .horizontal-words__bottom-text-l {
+    font-size: 1rem !important;
+    padding: 0 20px;
+    line-height: 1.5;
+  }
+
+  .horizontal-words__bottom-text {
+    width: 100% !important;
+    transform: translate(-50%, 7em) !important;
+  }
+
+  .horizontal-words__arrow-svg {
+    width: 16em !important;
+    transform: translate(-150%, -40%) !important;
+  }
+
+  .horizontal-words__arrow-end-svg {
+    width: 6em !important;
+  }
+
+  .horizontal-words__sticker-watch {
+    width: 4.5em !important;
+  }
+
+  .horizontal-words__sticker-cursor {
+    width: 5em !important;
+  }
+
+  .horizontal-words__sticker-phone {
+    width: 5.5em !important;
   }
 
   /* ── Content / Hero Title ───────── */
@@ -251,6 +423,12 @@
 
   .footer-map-link {
     font-size: 0.95rem;
+  }
+
+  .footer-cta-btn {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    margin-top: 12px;
   }
 
   /* ── Footer Stickers (mobile) ──── */

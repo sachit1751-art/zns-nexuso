@@ -15,8 +15,20 @@ export default function VimeoHero() {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    // Native video loads immediately enough that we don't need a heavy ready listener.
-    // We already handle `setIsLoaded(true)` directly on the <video onLoadedData={...}> element.
+    useEffect(() => {
+        const video = iframeRef.current;
+        if (video) {
+            video.muted = true;
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    setIsPlaying(true);
+                }).catch(() => {
+                    // Autoplay was prevented
+                });
+            }
+        }
+    }, []);
 
     /* ────────────────────────────────────────────────────
        ④ Hover mute bubble — same GSAP elastic spring as CursorBubble
@@ -95,32 +107,127 @@ export default function VimeoHero() {
         };
     }, []);
 
+    /* ── Stop Video on Scroll if Sound is ON (All Devices) ── */
+    useEffect(() => {
+        const handleScroll = (e) => {
+            const video = iframeRef.current;
+            if (!video) return;
+
+            // If sound is ON (muted is false) and video is actively playing, pause it when scrolling down
+            if (!video.muted && !video.paused) {
+                const scrollY = window.scrollY || window.pageYOffset || (e && e.scroll) || 0;
+                const threshold = window.innerHeight * 0.66;
+                if (scrollY > threshold) {
+                    video.pause();
+                    setIsPlaying(false);
+                }
+            }
+        };
+
+        // Attach standard scroll event
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Safely hook into Lenis smooth-scroll instance as soon as it becomes available
+        let lenisUnsubscribe = null;
+        const checkLenis = setInterval(() => {
+            if (window.__lenis) {
+                window.__lenis.on('scroll', handleScroll);
+                lenisUnsubscribe = () => {
+                    window.__lenis?.off('scroll', handleScroll);
+                };
+                clearInterval(checkLenis);
+            }
+        }, 100);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            if (lenisUnsubscribe) {
+                lenisUnsubscribe();
+            } else {
+                clearInterval(checkLenis);
+            }
+        };
+    }, []);
+
+    /* ── Subtle Entrance Animation on Mount ── */
+    useEffect(() => {
+        const words = titleRef.current?.querySelectorAll('.vimeo-hero__word');
+        const smiley = titleRef.current?.querySelector('.home-header__smiley');
+        const star = titleRef.current?.querySelector('.home-header__star');
+        const controls = controlsRef.current;
+
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+        if (words && words.length > 0) {
+            tl.fromTo(
+                words,
+                { opacity: 0, y: 10 },
+                { opacity: 1, y: 0, duration: 0.85, stagger: 0.07, delay: 0.1 }
+            );
+        }
+
+        if (smiley) {
+            tl.fromTo(
+                smiley,
+                { scale: 0, opacity: 0, rotation: -50 },
+                { scale: 1, opacity: 1, rotation: -30, duration: 0.7, ease: 'back.out(1.8)' },
+                '-=0.45'
+            );
+        }
+
+        if (star) {
+            tl.fromTo(
+                star,
+                { scale: 0, opacity: 0, rotation: 35 },
+                { scale: 1, opacity: 1, rotation: 10, duration: 0.7, ease: 'back.out(1.8)' },
+                '-=0.5'
+            );
+        }
+
+        if (controls) {
+            tl.fromTo(
+                controls,
+                { opacity: 0, y: 16 },
+                { opacity: 1, y: 0, duration: 0.6 },
+                '-=0.35'
+            );
+        }
+
+        return () => {
+            tl.kill();
+        };
+    }, []);
+
     /* ── Controls ── */
     const togglePlay = (e) => {
         if (e) e.stopPropagation();
-        if (!iframeRef.current) return;
-        if (isPlaying) {
-            iframeRef.current.pause();
+        const video = iframeRef.current;
+        if (!video) return;
+        if (video.paused) {
+            video.play().catch(() => {});
+            setIsPlaying(true);
         } else {
-            iframeRef.current.play();
+            video.pause();
+            setIsPlaying(false);
         }
-        setIsPlaying(p => !p);
     };
 
     const toggleMute = (e) => {
         if (e) e.stopPropagation();
-        if (!iframeRef.current) return;
-        iframeRef.current.muted = !isMuted;
-        setIsMuted(m => !m);
+        const video = iframeRef.current;
+        if (!video) return;
+        const newMuted = !video.muted;
+        video.muted = newMuted;
+        setIsMuted(newMuted);
     };
 
     const toggleFullscreen = (e) => {
         if (e) e.stopPropagation();
         if (!document.fullscreenElement) {
-            playerRef.current?.requestFullscreen();
+            playerRef.current?.requestFullscreen?.();
             setIsFullscreen(true);
         } else {
-            document.exitFullscreen();
+            document.exitFullscreen?.();
             setIsFullscreen(false);
         }
     };
@@ -137,7 +244,7 @@ export default function VimeoHero() {
                     {/* Blob shape */}
                     <img
                         src="/assets/VimeoHero SVG/mute-bubble-blob.svg"
-                        alt=""
+                        alt="Play control background blob"
                         className="vimeo-mute-bubble__blob-svg"
                     />
                     {/* Mute icon (shown when sound is ON → click to mute) */}
@@ -166,61 +273,63 @@ export default function VimeoHero() {
                 ref={playerRef}
                 onClick={toggleMute}
             >
-                {/* 
-                  Video Placeholder: 
-                  Currently left blank to display a solid black background while you work on text, SVGs, and the navbar.
-                  Once you have your personal video file in the `public/` folder, uncomment and update the src below!
-                */}
+                {/* Video element with playback support */}
                 <video
                     ref={iframeRef}
-                    // src="/your-personal-video.mp4"
+                    src="https://vjs.zencdn.net/v/oceans.mp4"
                     autoPlay
                     loop
                     muted
                     playsInline
+                    preload="auto"
                     className="vimeo-hero__iframe"
-                    style={{ objectFit: 'cover', backgroundColor: '#111' }}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                    style={{ objectFit: 'cover', backgroundColor: '#111827' }}
                 />
 
                 {/* Gradient fade */}
                 <div className="vimeo-hero__fade" />
 
-                {/* ① Headline — bottom left, word-by-word layout */}
+                {/* ① Headline — bottom centered/left, word-by-word layout */}
                 <div className="home-header__title">
                     <h1 className="vimeo-hero__title" ref={titleRef} onClick={(e) => e.stopPropagation()}>
                         <span className="vimeo-hero__word">We </span>
                         <span className="vimeo-hero__word is--relative">
-                            <span>make </span>
+                            <span>build </span>
                             <div className="home-header__smiley">
                                 <img
                                     src="/assets/VimeoHero SVG/smiley-face.svg"
-                                    alt=""
+                                    alt="Smiley face illustration representing client satisfaction"
                                     className="home-header__smiley-svg"
                                 />
                             </div>
                         </span>
                         <span className="vimeo-hero__word">your </span>
-                        <span className="vimeo-hero__word">business </span>
+                        <span className="vimeo-hero__word">AI </span>
+                        <span className="vimeo-hero__word">SaaS </span>
+                        <div className="vimeo-hero__line-break" />
+                        <span className="vimeo-hero__word">and </span>
                         <span className="vimeo-hero__word">work </span>
-                        <span className="vimeo-hero__word">flow </span>
-                        <div style={{ flexBasis: '100%', height: 0 }} />
+                        <span className="vimeo-hero__word">flows </span>
+                        <div className="vimeo-hero__line-break" />
                         <span className="vimeo-hero__word">10x </span>
                         <span className="vimeo-hero__word is--relative">
                             <div className="home-header__star">
                                 <div className="home-header__star-inner">
                                     <img
                                         src="/assets/VimeoHero SVG/pink-star.svg"
-                                        alt=""
+                                        alt="Decorative pink star icon"
                                         className="home-header__star-svg"
                                     />
                                 </div>
                             </div>
                             <img
                                 src="/assets/VimeoHero SVG/oval-underline.svg"
-                                alt=""
+                                alt="Highlight underline accent vector"
                                 className="home-header__title-line-svg"
                             />
-                            <span>easier</span>
+                            <span>smarter</span>
                         </span>
                     </h1>
                 </div>

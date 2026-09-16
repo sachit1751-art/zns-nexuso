@@ -7,14 +7,21 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(InertiaPlugin, ScrollTrigger);
 
-export default function MotionCards() {
+function MotionCards() {
     const sectionRef = useRef(null);
-    const containerRef = useRef(null);
+    const cardsContainerRef = useRef(null);
+    const labelsContainerRef = useRef(null);
 
     useEffect(() => {
         const ctx = gsap.context(() => {
-            // Inertia on cards
-            const cards = document.querySelectorAll(".motion-card__card");
+            const sectionEl = sectionRef.current;
+            if (!sectionEl) return;
+
+            // Inertia on cards using ref scoping
+            const cards = cardsContainerRef.current 
+                ? cardsContainerRef.current.querySelectorAll(".motion-card__card")
+                : sectionEl.querySelectorAll(".motion-card__card");
+
             cards.forEach((card) => {
                 let lastX = 0;
                 let lastY = 0;
@@ -54,8 +61,11 @@ export default function MotionCards() {
                 card.addEventListener("mouseleave", onLeave);
             });
 
-            // Inertia on floating labels
-            const labels = document.querySelectorAll(".motion-card__floating-label");
+            // Inertia on floating labels using ref scoping
+            const labels = labelsContainerRef.current 
+                ? labelsContainerRef.current.querySelectorAll(".motion-card__floating-label")
+                : sectionEl.querySelectorAll(".motion-card__floating-label");
+
             labels.forEach((label) => {
                 let lastX = 0;
                 let lastY = 0;
@@ -96,45 +106,21 @@ export default function MotionCards() {
             });
 
             // Entry Animations: Sticker Pop & Underline Draw
-            gsap.from(".motion-card__title", {
-                y: 50,
-                opacity: 0,
-                duration: 1,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top 80%",
-                    toggleActions: "play none none reverse",
-                }
-            });
-
-            gsap.from(".motion-card__footer-text", {
-                y: 40,
-                opacity: 0,
-                duration: 1,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: ".motion-card__footer-text",
-                    start: "top 85%",
-                    toggleActions: "play none none reverse",
-                }
-            });
-
             const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: sectionRef.current,
+                    trigger: sectionEl,
                     start: "top 70%",
                     toggleActions: "play none none reverse"
                 }
             });
 
-            const topStickerImg = sectionRef.current.querySelector(".motion-card__sticker--top img");
+            const topStickerImg = sectionEl.querySelector(".motion-card__sticker--top img");
             if (topStickerImg) {
                 gsap.set(topStickerImg, { scale: 0, opacity: 0, rotation: -30 });
                 tl.to(topStickerImg, { scale: 1, opacity: 1, rotation: 0, duration: 1.7, ease: "elastic.out(1, 0.4)" }, 0);
             }
 
-            const underlinePath = sectionRef.current.querySelector(".motion-card__underline-path");
+            const underlinePath = sectionEl.querySelector(".motion-card__underline-path");
             if (underlinePath) {
                 const pathLen = underlinePath.getTotalLength();
                 gsap.set(underlinePath, { strokeDasharray: pathLen, strokeDashoffset: pathLen });
@@ -151,21 +137,22 @@ export default function MotionCards() {
             className="motion-card-section" id="motion-card-section">
             {/* ─── Part 1: Bold Heading Text with SVG Sticker Placeholders ─── */}
             <div className="motion-card__heading">
-                <h2 className="motion-card__title">
+                <h2 className="motion-card__title" style={{ position: 'relative', display: 'inline-block' }}>
                     an agency built
                     <br />
                     for the future.
-                </h2>
-                <p className="motion-card__subtitle">
-                    from idea to Revenue.
-                    {/* SVG sticker placeholder — top-right area */}
-                    <span className="motion-card__sticker motion-card__sticker--top">
+                    <span className="motion-card__sticker motion-card__sticker--top" style={{ position: 'absolute', right: '-100px', bottom: '10px', width: '90px', height: 'auto', display: 'inline-block' }}>
                         <img
                             src="/assets/Footer-Sticker SVG/footer-sticker-hands.svg"
                             alt="Green heart hands sticker"
                             className="motion-card__sticker-img"
+                            style={{ width: '100%', height: 'auto' }}
                         />
                     </span>
+                </h2>
+                <br />
+                <p className="motion-card__subtitle">
+                    from idea to <span style={{ position: 'relative', display: 'inline-block' }}>Revenue.</span>
                 </p>
                 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 634 28" fill="none" className="motion-card__underline-svg">
                     <path className="motion-card__underline-path" d="M2 26C41.0237 23.1556 79.9927 19.9419 118.634 15.5521C169.106 9.98633 227.314 2.42393 275.206 2C280.46 2.57436 264.768 4.99488 262.462 5.55556C257.837 6.43078 252.529 7.47009 247.317 8.59146C239.594 10.3556 212.496 15.8393 226.932 19.8051C239.594 22.6359 263.663 21.9521 280.978 21.3504C314.817 19.9829 349.311 16.7419 383.204 14.7863C465.931 9.5077 549.191 10.547 632 14.1436" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -183,12 +170,77 @@ export default function MotionCards() {
                     />
                 </div>
 
-
                 {/* 4 Photo Cards */}
-                <div ref={containerRef} className="motion-card__cards"></div>
+                <div ref={cardsContainerRef} className="motion-card__cards">
+                    <div className="motion-card__card motion-card__card--1">
+                        <div className="motion-card__card-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80"
+                                loading="lazy"
+                                width={1000}
+                                height={1000}
+                                alt="Enterprise AI automation analytics dashboard interface showing workflow nodes"
+                                className="cover-image"
+                                referrerPolicy="no-referrer"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="motion-card__card motion-card__card--2">
+                        <div className="motion-card__card-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80"
+                                loading="lazy"
+                                width={1000}
+                                height={1000}
+                                alt="Cloud-native CRM platform database metrics and performance dashboard mockup"
+                                className="cover-image"
+                                referrerPolicy="no-referrer"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="motion-card__card motion-card__card--3">
+                        <div className="motion-card__card-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1000&q=80"
+                                loading="lazy"
+                                width={1000}
+                                height={1000}
+                                alt="AI vector search engine RAG graph network representation visualization"
+                                className="cover-image"
+                                referrerPolicy="no-referrer"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="motion-card__card motion-card__card--4">
+                        <div className="motion-card__card-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80"
+                                loading="lazy"
+                                width={1000}
+                                height={1000}
+                                alt="Modern web application dashboard editor interface and workflow manager"
+                                className="cover-image"
+                                referrerPolicy="no-referrer"
+                            />
+                        </div>
+                    </div>
+                </div>
 
                 {/* Floating labels — positioned freely over the cards area */}
-                <div ref={containerRef} className="motion-card__floating-labels"></div>
+                <div ref={labelsContainerRef} className="motion-card__floating-labels">
+                    <div className="motion-card__floating-label motion-card__floating-label--pink">
+                        <p className="motion-card__floating-text">autonomous AI agents</p>
+                    </div>
+                    <div className="motion-card__floating-label motion-card__floating-label--orange">
+                        <p className="motion-card__floating-text">predictive workflows</p>
+                    </div>
+                    <div className="motion-card__floating-label motion-card__floating-label--red">
+                        <p className="motion-card__floating-text">enterprise security</p>
+                    </div>
+                </div>
             </div>
 
             {/* ─── Part 3: Bottom Paragraph Text ─── */}
@@ -200,3 +252,5 @@ export default function MotionCards() {
         </section>
     );
 }
+
+export default React.memo(MotionCards);
