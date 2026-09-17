@@ -1,8 +1,4 @@
 /* ─── MotionCard Section ─────────────────────────────────────────────────── */
-.motion-cards-wrapper {
-    padding-top: 0 !important;
-}
-
 .motion-card-section {
     position: relative;
     width: 100%;
@@ -108,33 +104,19 @@
 
 .motion-card__card {
     position: relative;
-    width: 19.5vw;
-    min-width: 220px;
-    max-width: 290px;
-    height: 26.5vw;
-    min-height: 300px;
-    max-height: 390px;
-    border-radius: 16px;
-    overflow: hidden;
-    background-color: #18181b;
-    border: 3.5px solid #ffffff;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+    width: 17vw;
+    height: 22vw;
+    border-radius: 0.375rem;
+    overflow: clip;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
     flex-shrink: 0;
-    cursor: url("/assets/Cursor SVG/cursor-pointer.svg") 12 12, pointer;
-    transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
-    will-change: transform;
-}
-
-.motion-card__card:hover {
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
-    filter: brightness(1.04);
 }
 
 .motion-card__card-image {
     width: 100%;
     height: 100%;
-    background-color: #27272a;
-    border-radius: 12px;
+    background-color: #d9d2cb;
+    border-radius: 0.375rem;
     overflow: hidden;
 }
 
@@ -142,8 +124,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-    opacity: 1;
 }
 
 /* Card 1 — far left, tilted */
@@ -196,53 +176,44 @@
 
 .motion-card__floating-label {
     position: absolute;
-    padding: 6px 16px;
+    padding: 0.1vw 0.5vw;
     border-radius: 9999px;
-    border-bottom-left-radius: 2px;
+    border-bottom-left-radius: 0;
     z-index: 10;
     transform: translate(-50%, -50%);
     white-space: nowrap;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
-    border: 1.5px solid rgba(0, 0, 0, 0.08);
-    cursor: url("/assets/Cursor SVG/cursor-pointer.svg") 12 12, pointer;
-    transition: box-shadow 0.25s ease;
-}
-
-.motion-card__floating-label:hover {
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
 }
 
 .motion-card__floating-text {
     pointer-events: none;
     margin: 0;
     font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #111827;
-    letter-spacing: -0.2px;
+    font-size: 1rem;
+    font-weight: 450;
+    color: var(--color-dark);
 }
 
 /* Card 1 label — pink, center-left area */
 .motion-card__floating-label--pink {
-    background-color: #fbcfe8;
+    background-color: #efbbd8;
     top: 31%;
     left: 30%;
 }
 
 /* Card 3 label — orange, bottom area */
 .motion-card__floating-label--orange {
-    background-color: #fed7aa;
+    background-color: #f4825c;
     top: 69%;
     left: 48%;
 }
 
+
 /* Card 4 label — green, top-right area */
 .motion-card__floating-label--red {
-    background-color: #d9f99d;
+    background-color: #dcec9d;
     top: 46%;
     left: 89%;
 }
-
 
 /* ─── Part 3: Bottom Text ────────────────────────────────────────────────── */
 .motion-card__footer-text {

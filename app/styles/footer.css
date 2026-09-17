@@ -119,83 +119,6 @@
     cursor: url("/assets/Cursor SVG/cursor-text.svg") 12 12, auto;
 }
 
-.footer-cta-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 14px;
-    padding: 12px 26px;
-    background-color: var(--color-white);
-    color: var(--color-black);
-    font-family: 'Epilogue', sans-serif;
-    font-size: 1.05rem;
-    font-weight: 800;
-    border-radius: 50px;
-    text-decoration: none;
-    width: fit-content;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, color 0.2s ease;
-    cursor: url("/assets/Cursor SVG/cursor-pointer.svg") 12 12, pointer;
-}
-
-.footer-cta-btn svg {
-    transition: transform 0.2s ease;
-}
-
-.footer-cta-btn:hover {
-    transform: translateY(-2px) scale(1.03);
-    background-color: #ffd15c;
-    color: var(--color-black);
-}
-
-.footer-cta-btn:hover svg {
-    transform: translateX(4px);
-}
-
-/* ─── Keyboard Focus States (Accessibility) ─── */
-.footer-cta-btn:focus-visible {
-    outline: 3px solid #ffd15c;
-    outline-offset: 4px;
-    background-color: #ffd15c;
-    color: var(--color-black);
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 0 0 7px rgba(0, 0, 0, 0.6);
-}
-
-.footer-cta-btn:focus-visible svg {
-    transform: translateX(4px);
-}
-
-.footer-email:focus-visible,
-.footer-whatsapp:focus-visible {
-    outline: 2px solid var(--color-white);
-    outline-offset: 4px;
-    border-radius: 4px;
-    text-decoration: underline;
-}
-
-.footer-socials a:focus-visible,
-.single-social:focus-visible {
-    outline: 2px solid var(--color-white);
-    outline-offset: 4px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.25);
-}
-
-.footer-credits:focus-visible {
-    outline: 2px solid var(--color-white);
-    outline-offset: 4px;
-    background: #222222;
-}
-
-.credits-name:focus-visible {
-    outline: 2px solid var(--color-white);
-    outline-offset: 3px;
-    border-radius: 4px;
-    opacity: 1;
-    text-decoration: underline;
-}
-
 /* ─── Social Icons ───────────────────────────────────────────────────────── */
 .footer-socials {
     display: flex;
@@ -238,7 +161,6 @@
     width: 104.9%;
     height: auto;
     margin-left: -2.5%;
-    display: block;
 }
 
 .footer-bottom-row {
@@ -278,42 +200,35 @@
 }
 
 .footer-credits {
-    background: #000000;
-    font-family: "Epilogue", sans-serif;
-    color: #ffffff;
-    padding: 3px 14px;
-    border-radius: 999px;
+    background: var(--color-black);
+    font-family: "Epilogue";
+    color: var(--color-white);
+    padding: 3px 12px;
+    border-radius: 20px;
+    border-bottom-left-radius: 1px;
     text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 700;
+    font-size: 1rem;
     pointer-events: auto;
     letter-spacing: 0.5px;
     display: inline-block;
     position: relative;
     z-index: 2;
     cursor: url("/assets/Cursor SVG/cursor-pointer.svg") 12 12, pointer;
-    transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.footer-credits:hover {
-    transform: scale(1.05);
-    background: #111111;
 }
 
 .credits-box {
     position: absolute;
     bottom: calc(100% + 15px);
     right: 0;
-    background: #000000;
-    border-radius: 16px;
+    background: var(--color-black);
+    border-radius: 12px;
     opacity: 0;
     visibility: hidden;
     transform-origin: bottom right;
     border: 3px solid var(--color-white);
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
     pointer-events: auto;
     overflow: hidden;
-    z-index: 100;
+    z-index: 1;
 
     /* Act as a clipping mask anchoring content bottom-right */
     box-sizing: border-box;
@@ -324,8 +239,9 @@
 
 .credits-content {
     display: flex;
-    gap: 46px;
-    padding: 28px 32px;
+    /* REDUCED BOX SIZE: Makes the box smaller without changing text size */
+    gap: 38px;
+    padding: 34px 26px;
     white-space: nowrap;
     width: max-content;
     height: max-content;
@@ -335,7 +251,7 @@
 .credits-item {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 
 .overflow-wrapper {
@@ -350,28 +266,21 @@
 .credits-label {
     color: var(--color-white);
     font-size: 1.3rem;
-    font-weight: 900;
+    font-weight: 950;
     font-family: 'Epilogue', sans-serif;
-    letter-spacing: -0.3px;
-    line-height: 1.15;
 }
 
 .credits-name {
     color: var(--color-white);
-    font-size: 1.16rem;
-    font-weight: 500;
+    font-size: 1.1rem;
+    font-weight: 450;
     font-family: 'Epilogue', sans-serif;
     opacity: 0.9;
     text-decoration: none;
+    /* Removed underline since it's an <a> tag now */
     cursor: url("/assets/Cursor SVG/cursor-pointer.svg") 12 12, pointer;
+    /* Added custom pointer */
     display: inline-block;
-    transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.credits-name:hover {
-    opacity: 1;
-    color: #ffd15c;
-    transform: translateY(-2px);
 }
 
 /* ─── Footer Stickers ────────────────────────────────────────────────────── */
@@ -393,43 +302,43 @@
 }
 
 .sticker-boom {
-    left: 0.5%;
-    bottom: 18%;
-    width: 145px;
+    left: -1%;
+    bottom: 15%;
+    width: 150px;
     transform: rotate(-10deg);
 }
 
 .sticker-smiley {
-    left: 16%;
-    bottom: 48%;
-    width: 150px;
-    transform: rotate(-12deg);
+    left: 20%;
+    bottom: 45%;
+    width: 130px;
+    transform: rotate(-20deg);
 }
 
 .sticker-heart {
-    left: 41%;
-    bottom: 36%;
-    width: 140px;
+    left: 45%;
+    bottom: 30%;
+    width: 130px;
     transform: rotate(-15deg);
 }
 
 .footer-sticker.sticker-hands {
-    left: 50%;
-    bottom: 3%;
-    width: 135px;
+    left: 55%;
+    bottom: 0%;
+    width: 130px;
     transform: rotate(10deg);
 }
 
 .footer-sticker.sticker-100 {
-    left: 56%;
-    bottom: 58%;
-    width: 140px;
-    transform: rotate(-8deg);
+    left: 60%;
+    bottom: 55%;
+    width: 130px;
+    transform: rotate(-0deg);
 }
 
 .footer-sticker.sticker-camera {
-    right: 12%;
-    bottom: 20%;
-    width: 145px;
+    right: 8%;
+    bottom: 15%;
+    width: 130px;
     transform: rotate(5deg);
 }

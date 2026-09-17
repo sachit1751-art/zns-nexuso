@@ -1,5 +1,5 @@
 {
-  "name": "nexus",
+  "name": "truus",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,8 +11,6 @@
   "dependencies": {
     "gsap": "^3.12.5",
     "lenis": "^1.1.14",
-    "lucide-react": "^1.46.0",
-    "motion": "^13.2.0",
     "next": "15.2.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

@@ -1,41 +1,72 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { brands, colors } from '@/lib/data';
 
-const TRACK_1 = [
-    { brand: { name: "oxxio", src: "/assets/Brand Logos SVG/oxxio_logo.svg" }, color: "var(--color-orange)" },
-    { brand: { name: "hema", src: "/assets/Brand Logos SVG/hema_logo.svg" }, color: "var(--color-lightblue)" },
-    { brand: { name: "kfc", src: "/assets/Brand Logos SVG/kfc_logo.svg" }, color: "var(--color-darkblue)" },
-    { brand: { name: "swapfiets", src: "/assets/Brand Logos SVG/swapfiets_logo.svg" }, color: "var(--color-lightgreen)" },
-    { brand: { name: "netflix", src: "/assets/Brand Logos SVG/netflix_logo.svg" }, color: "var(--color-maroon)" },
-    { brand: { name: "ace-tate", src: "/assets/Brand Logos SVG/ace_tate_logo.svg" }, color: "var(--color-pink)" },
-    { brand: { name: "getir", src: "/assets/Brand Logos SVG/getir_logo.svg" }, color: "var(--color-orange)" },
-    { brand: { name: "anwb", src: "/assets/Brand Logos SVG/anwb_logo.svg" }, color: "var(--color-green)" }
-];
+// ─── Shuffle helpers ─────────────────────────────────────────────────────────
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
 
-const TRACK_2 = [
-    { brand: { name: "hema", src: "/assets/Brand Logos SVG/hema_logo.svg" }, color: "var(--color-maroon)" },
-    { brand: { name: "netflix", src: "/assets/Brand Logos SVG/netflix_logo.svg" }, color: "var(--color-lightblue)" },
-    { brand: { name: "ace-tate", src: "/assets/Brand Logos SVG/ace_tate_logo.svg" }, color: "var(--color-lightgreen)" },
-    { brand: { name: "anwb", src: "/assets/Brand Logos SVG/anwb_logo.svg" }, color: "var(--color-orange)" },
-    { brand: { name: "kfc", src: "/assets/Brand Logos SVG/kfc_logo.svg" }, color: "var(--color-darkblue)" },
-    { brand: { name: "swapfiets", src: "/assets/Brand Logos SVG/swapfiets_logo.svg" }, color: "var(--color-pink)" },
-    { brand: { name: "getir", src: "/assets/Brand Logos SVG/getir_logo.svg" }, color: "var(--color-maroon)" },
-    { brand: { name: "oxxio", src: "/assets/Brand Logos SVG/oxxio_logo.svg" }, color: "var(--color-green)" }
-];
+function shuffleNoAdjacentSrc(array) {
+    const arr = shuffleArray([...array]);
+    for (let i = 1; i < arr.length; i++) {
+        if (arr[i].src === arr[i - 1].src) {
+            for (let j = i + 1; j < arr.length; j++) {
+                if (arr[j].src !== arr[i - 1].src) { [arr[i], arr[j]] = [arr[j], arr[i]]; break; }
+            }
+        }
+    }
+    if (arr[arr.length - 1].src === arr[0].src) {
+        for (let j = 1; j < arr.length - 1; j++) {
+            if (arr[j].src !== arr[0].src && arr[j].src !== arr[arr.length - 2].src) {
+                [arr[arr.length - 1], arr[j]] = [arr[j], arr[arr.length - 1]]; break;
+            }
+        }
+    }
+    return arr;
+}
 
-// Duplicate each track twice for infinite seamless scroll
-const DETERMINISTIC_TRACKS = [
-    [...TRACK_1, ...TRACK_1],
-    [...TRACK_2, ...TRACK_2]
-];
+function assignColorsNoAdjacent(count, colorPool) {
+    const result = [];
+    for (let i = 0; i < count; i++) {
+        const prev = i > 0 ? result[i - 1] : null;
+        const seamColor = i === count - 1 ? result[0] : null;
+        const available = colorPool.filter(c => c !== prev && c !== seamColor);
+        const pool = available.length > 0 ? available : colorPool.filter(c => c !== prev);
+        result.push(pool[Math.floor(Math.random() * pool.length)]);
+    }
+    return result;
+}
+
+function buildMarqueeItems(isMobile) {
+    const tracks = [[], []];
+    for (let t = 0; t < 2; t++) {
+        const shuffledBrands = shuffleNoAdjacentSrc(brands);
+        const assignedColors = assignColorsNoAdjacent(shuffledBrands.length, colors);
+        const items = shuffledBrands.map((brand, i) => ({ brand, color: assignedColors[i] }));
+        tracks[t] = isMobile ? items : [...items, ...items]; // duplicate for seamless loop
+    }
+    return tracks;
+}
 
 export default function DoubleMarquee() {
+    const [tracks, setTracks] = useState([[], []]);
+    const [isMobile, setIsMobile] = useState(false);
+
     useEffect(() => {
-        if (typeof window === 'undefined') return;
         gsap.registerPlugin(ScrollTrigger);
+
+        const mobile = window.matchMedia('(max-width: 768px)').matches;
+        setIsMobile(mobile);
+        setTracks(buildMarqueeItems(mobile));
 
         // Arrow path animation
         gsap.set('.marquee-left .marquee-svg-item:nth-child(2) path', { strokeDashoffset: 1000 });
@@ -43,24 +74,18 @@ export default function DoubleMarquee() {
         const marqueeTl = gsap.timeline({
             scrollTrigger: {
                 trigger: '.Double-marquee',
-                start: 'top 75%',
-                toggleActions: 'play none none reverse'
+                start: 'top 70%',
+                toggleActions: 'play none none reverse' // Allow replaying on scroll out/in
             }
         });
 
         marqueeTl
-            .fromTo(['.marquee-left', '.marquee-right'], 
-                { opacity: 0, y: 35 }, 
-                { opacity: 1, y: 0, duration: 0.9, stagger: 0.15, ease: 'power3.out' }
-            )
-            .to('.marquee-underline', { scaleX: 1, opacity: 1, duration: 1, ease: 'power2.out' }, '-=0.4')
+            .to('.marquee-underline', { scaleX: 1, opacity: 1, duration: 1, ease: 'power2.out' })
             .to('.marquee-left .marquee-svg-item:nth-child(1)', { scale: 1, opacity: 1, rotation: -10, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.5')
             .to('.marquee-left .marquee-svg-item:nth-child(2) path', { strokeDashoffset: 0, duration: 1.5, ease: 'power2.out' }, '-=0.3');
 
         return () => {
-            ScrollTrigger.getAll().forEach(t => { 
-                if (t.vars.trigger === '.Double-marquee') t.kill(); 
-            });
+            ScrollTrigger.getAll().forEach(t => { if (t.vars.trigger === '.Double-marquee') t.kill(); });
         };
     }, []);
 
@@ -75,10 +100,10 @@ export default function DoubleMarquee() {
                     </svg>
                 </div>
                 <div className="marquee-blob-container">
-                    <img loading="lazy" src="/assets/Marquee-blob SVG/marquee-blob.svg" className="marquee-blob" alt="" aria-hidden="true" />
+                    <img src="/assets/Marquee-blob SVG/marquee-blob.svg" className="marquee-blob" alt="" aria-hidden="true" />
                     <div className="marquee-svg-container">
                         <div className="marquee-svg-item">
-                            <img loading="lazy" src="/assets/Marquee-blob SVG/marquee-hand.svg" width="100%" alt="" aria-hidden="true" />
+                            <img src="/assets/Marquee-blob SVG/marquee-hand.svg" width="100%" alt="" aria-hidden="true" />
                         </div>
                         <div className="marquee-svg-item">
                             <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 386 127" fill="none">
@@ -92,14 +117,14 @@ export default function DoubleMarquee() {
 
             {/* Right: Two scrolling columns */}
             <div className="marquee-right">
-                {DETERMINISTIC_TRACKS.map((trackItems, colIndex) => (
+                {tracks.map((trackItems, colIndex) => (
                     <div key={colIndex} className="marquee-column">
                         <div className="marquee-track">
                             {trackItems.map((item, i) => (
                                 <div key={i} className="marquee-item" data-brand={item.brand.name} style={{ backgroundColor: item.color }}>
                                     <div className="marquee-logo">
                                         <div className="marquee-logo__before"></div>
-                                        <img loading="lazy" src={item.brand.src} loading="lazy" alt={item.brand.name} className="cover-image" />
+                                        <img src={item.brand.src} loading="lazy" alt={item.brand.name} className="cover-image" />
                                     </div>
                                 </div>
                             ))}
@@ -110,4 +135,3 @@ export default function DoubleMarquee() {
         </>
     );
 }
-

@@ -1,6 +1,6 @@
 {
   "name": "ZNS Nexus",
-  "description": "Elite B2B SaaS development and AI workflow automation agency. We build custom SaaS platforms, integrate advanced AI systems, and automate enterprise operations.",
+  "description": "Digital product studio & agency specializing in custom web applications, SaaS development, and end-to-end product design.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,41 +1,60 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import React from "react";
+import { useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CARDS_DATA } from "@/lib/data";
 
-function ServiceCards() {
-  const sectionRef = useRef(null);
-  const wrapperRef = useRef(null);
-
+export default function ServiceCards() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    const sectionEl = sectionRef.current;
-    const wrapperEl = wrapperRef.current;
-    if (!sectionEl) return;
 
-    // Animate underline SVG paths on scroll
-    gsap.to(sectionEl.querySelectorAll(".title-underline-svg path"), {
+    // Entrance animation for title container
+    gsap.from(".title-container", {
+      y: 50,
+      opacity: 0,
+      duration: 1,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".title-container",
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      },
+    });
+
+    // Entrance animation for cards
+    gsap.from(".card", {
+      y: 80,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.15,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".cards-wrapper",
+        start: "top 75%",
+        toggleActions: "play none none reverse",
+      },
+    });
+
+    // Animate underline SVG paths on scroll (from HeroSection)
+    gsap.to(".title-underline-svg path", {
       strokeDashoffset: 0,
       duration: 1.2,
       ease: "power3.out",
       stagger: 0.3,
       scrollTrigger: {
-        trigger: sectionEl,
+        trigger: ".service-cards-wrapper",
         start: "top 70%",
         toggleActions: "play none none reverse",
       },
     });
 
-    if (wrapperEl) {
-      initCardAnimations(wrapperEl);
-    }
+    initCardAnimations();
+    ScrollTrigger.refresh();
   }, []);
 
   return (
-    <div ref={sectionRef} className="service-cards-section-container">
+    <>
       {/* ─── "Call us if you need:" Heading ─── */}
       <div className="title-container">
         <h2 className="main-title">
@@ -66,15 +85,16 @@ function ServiceCards() {
       </div>
 
       {/* ─── Service Cards ─── */}
-      <div ref={wrapperRef} className="cards-wrapper" id="cards-wrapper">
+      <div className="cards-wrapper" id="cards-wrapper">
         {CARDS_DATA.map((card) => (
           <div key={card.color} className={`card card-${card.color}`}>
             <div className={`card-sticker sticker-${card.sticker}`}>
               <img
                 src={`/assets/Card-Sticker SVG/sticker-${card.sticker}.svg`}
-                alt={`${card.title} capability illustration icon sticker`}
+                alt=""
                 width="100%"
                 loading="lazy"
+                aria-hidden="true"
               />
             </div>
             <h3 className="card-title">{card.title}</h3>
@@ -105,14 +125,12 @@ function ServiceCards() {
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 }
 
-export default React.memo(ServiceCards);
-
-function initCardAnimations(wrapper) {
-  const cards = wrapper.querySelectorAll(".card");
+function initCardAnimations() {
+  const cards = gsap.utils.toArray(".card");
   if (!cards.length) return;
 
   const originalData = [
@@ -124,13 +142,18 @@ function initCardAnimations(wrapper) {
   ];
 
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  //   let leaveTimeout = null; no need GSAP can handle the interlining tweens internally once you set overwrite: true
 
   if (!isMobile) {
     cards.forEach((card, index) => {
       card.addEventListener("mouseenter", () => {
+        // if (leaveTimeout) {
+        //   clearTimeout(leaveTimeout);
+        //   leaveTimeout = null;
+        // }
         const hoverGap = 120;
         const clusterGap = 150;
-        const cardWidth = 385; // updated with expanded 15% width
+        const cardWidth = 320;
         const hoveredLeft = cards[index].offsetLeft;
         const leftCards = [];
         const rightCards = [];
@@ -199,6 +222,7 @@ function initCardAnimations(wrapper) {
       });
 
       card.addEventListener("mouseleave", () => {
+        // leaveTimeout = setTimeout(() => {
         cards.forEach((c, i) => {
           gsap.to(c, {
             x: 0,
@@ -212,10 +236,12 @@ function initCardAnimations(wrapper) {
             delay: 0.08,
           });
         });
+        // }, 80);
       });
     });
   } else {
     // ─── Mobile: Stacked card scroll reveal ───
+    const cardsWrapper = document.querySelector(".cards-wrapper");
     const scrollPerCard = window.innerHeight * 0.8;
     const navH = 60;
     const mobileRotations = [-6, 4, -8, 5, -3];
@@ -235,10 +261,10 @@ function initCardAnimations(wrapper) {
 
     const wrapperH =
       window.innerHeight * 0.7 + scrollPerCard * (cards.length - 1);
-    gsap.set(wrapper, { height: wrapperH });
+    gsap.set(cardsWrapper, { height: wrapperH });
 
     ScrollTrigger.create({
-      trigger: wrapper,
+      trigger: cardsWrapper,
       start: `top ${navH}px`,
       end: `+=${scrollPerCard * (cards.length - 1)}`,
       pin: true,
@@ -255,7 +281,7 @@ function initCardAnimations(wrapper) {
           y: 0,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: wrapper,
+            trigger: cardsWrapper,
             start: `top+=${(i - 1) * scrollPerCard} ${navH}px`,
             end: `top+=${i * scrollPerCard} ${navH}px`,
             scrub: 0.4,
