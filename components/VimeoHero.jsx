@@ -10,27 +10,81 @@ export default function VimeoHero() {
     const titleRef = useRef(null);
     const controlsRef = useRef(null);
 
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    // Ensure video autoplays smoothly on mount
-    useEffect(() => {
+    // Guaranteed safe play that handles browser autoplay policies
+    const safePlay = () => {
         const video = iframeRef.current;
         if (!video) return;
-        video.muted = isMuted;
+        video.defaultMuted = true;
+        video.muted = true;
         const playPromise = video.play();
         if (playPromise !== undefined) {
             playPromise
-                .then(() => setIsPlaying(true))
-                .catch(() => {
-                    // Fallback to muted autoplay
-                    video.muted = true;
-                    setIsMuted(true);
-                    video.play().then(() => setIsPlaying(true)).catch(() => {});
+                .then(() => {
+                    setIsPlaying(true);
+                })
+                .catch((err) => {
+                    console.log('Autoplay pending user interaction:', err);
+                    setIsPlaying(false);
                 });
         }
+    };
+
+    // Callback ref to guarantee defaultMuted and playsinline are applied immediately at DOM mount
+    const setVideoRef = (el) => {
+        iframeRef.current = el;
+        if (el) {
+            el.defaultMuted = true;
+            el.muted = true;
+            el.setAttribute('playsinline', 'true');
+            el.setAttribute('webkit-playsinline', 'true');
+            el.setAttribute('x5-playsinline', 'true');
+        }
+    };
+
+    // Ensure video autoplays smoothly on mount and resumes on first user touch/scroll/click
+    useEffect(() => {
+        const video = iframeRef.current;
+        if (!video) return;
+
+        video.defaultMuted = true;
+        video.muted = true;
+
+        safePlay();
+
+        const onFirstInteraction = () => {
+            if (video && video.paused) {
+                safePlay();
+            }
+        };
+
+        window.addEventListener('pointerdown', onFirstInteraction, { once: true, passive: true });
+        window.addEventListener('touchstart', onFirstInteraction, { once: true, passive: true });
+        window.addEventListener('scroll', onFirstInteraction, { once: true, passive: true });
+        window.addEventListener('keydown', onFirstInteraction, { once: true, passive: true });
+        window.addEventListener('click', onFirstInteraction, { once: true, passive: true });
+
+        const onPlay = () => setIsPlaying(true);
+        const onPause = () => setIsPlaying(false);
+
+        video.addEventListener('play', onPlay);
+        video.addEventListener('playing', onPlay);
+        video.addEventListener('pause', onPause);
+
+        return () => {
+            window.removeEventListener('pointerdown', onFirstInteraction);
+            window.removeEventListener('touchstart', onFirstInteraction);
+            window.removeEventListener('scroll', onFirstInteraction);
+            window.removeEventListener('keydown', onFirstInteraction);
+            window.removeEventListener('click', onFirstInteraction);
+            video.removeEventListener('play', onPlay);
+            video.removeEventListener('playing', onPlay);
+            video.removeEventListener('pause', onPause);
+        };
     }, []);
 
     /* ────────────────────────────────────────────────────
@@ -119,7 +173,11 @@ export default function VimeoHero() {
             video.pause();
             setIsPlaying(false);
         } else {
-            video.play().then(() => setIsPlaying(true)).catch(() => {});
+            video.play().then(() => setIsPlaying(true)).catch(() => {
+                video.muted = true;
+                setIsMuted(true);
+                video.play().then(() => setIsPlaying(true)).catch(() => {});
+            });
         }
     };
 
@@ -127,9 +185,26 @@ export default function VimeoHero() {
         if (e) e.stopPropagation();
         const video = iframeRef.current;
         if (!video) return;
+        if (video.paused) {
+            video.play().then(() => setIsPlaying(true)).catch(() => {});
+        }
         const nextMuted = !video.muted;
         video.muted = nextMuted;
         setIsMuted(nextMuted);
+    };
+
+    const handleHeroClick = (e) => {
+        const video = iframeRef.current;
+        if (!video) return;
+        if (video.paused) {
+            video.play().then(() => setIsPlaying(true)).catch(() => {
+                video.muted = true;
+                setIsMuted(true);
+                video.play().then(() => setIsPlaying(true)).catch(() => {});
+            });
+        } else {
+            toggleMute(e);
+        }
     };
 
     const toggleFullscreen = (e) => {
@@ -182,11 +257,10 @@ export default function VimeoHero() {
             <div
                 className={`vimeo-hero ${isPlaying ? 'is-playing' : 'is-paused'} ${isMuted ? 'is-muted' : 'is-unmuted'}`}
                 ref={playerRef}
-                onClick={toggleMute}
+                onClick={handleHeroClick}
             >
                 <video
-                    ref={iframeRef}
-                    src="/assets/vimeo-hero.mp4"
+                    ref={setVideoRef}
                     poster="/assets/hero-thumb.jpg"
                     autoPlay
                     loop
@@ -194,11 +268,20 @@ export default function VimeoHero() {
                     playsInline
                     preload="auto"
                     onLoadedData={() => setIsLoaded(true)}
+                    onCanPlay={() => {
+                        setIsLoaded(true);
+                        if (iframeRef.current?.paused) {
+                            safePlay();
+                        }
+                    }}
                     onPlay={() => setIsPlaying(true)}
                     onPause={() => setIsPlaying(false)}
                     className="vimeo-hero__iframe"
-                    style={{ objectFit: 'cover', backgroundColor: '#111' }}
-                />
+                    style={{ objectFit: 'cover', backgroundColor: '#0e0e12' }}
+                >
+                    <source src="/assets/vimeo-hero.mp4" type="video/mp4" />
+                    <source src="/assets/vimeo-hero.webm" type="video/webm" />
+                </video>
 
                 {/* Gradient fade */}
                 <div className="vimeo-hero__fade" />

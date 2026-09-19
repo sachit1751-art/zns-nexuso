@@ -223,16 +223,12 @@ export default function Footer() {
                         <div className="credits-box">
                             <div className="credits-content">
                                 <div className="credits-item credit-wiggle">
-                                    <div className="overflow-wrapper"><span className="credits-label">design by</span></div>
-                                    <div className="overflow-wrapper"><a href="#" className="credits-name" data-wiggle-target="true">Jordan</a></div>
-                                </div>
-                                <div className="credits-item credit-wiggle">
-                                    <div className="overflow-wrapper"><span className="credits-label">code by</span></div>
-                                    <div className="overflow-wrapper"><a href="#" className="credits-name" data-wiggle-target="true">Dennis</a></div>
+                                    <div className="overflow-wrapper"><span className="credits-label">design &amp; code by</span></div>
+                                    <div className="overflow-wrapper"><a href="https://sachin-portfoli.vercel.app" target="_blank" rel="noopener noreferrer" className="credits-name" data-wiggle-target="true">Sachit</a></div>
                                 </div>
                             </div>
                         </div>
-                        <a href="#" className="footer-credits">credits</a>
+                        <a href="#" className="footer-credits" onClick={(e) => e.preventDefault()}>credits</a>
                     </div>
                 </div>
             </div>

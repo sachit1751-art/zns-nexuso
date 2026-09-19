@@ -13,6 +13,26 @@ const nextConfig = {
         config.resolve.alias['@'] = path.resolve(__dirname);
         return config;
     },
+    async headers() {
+        return [
+            {
+                source: '/assets/:path*.mp4',
+                headers: [
+                    { key: 'Accept-Ranges', value: 'bytes' },
+                    { key: 'Content-Type', value: 'video/mp4' },
+                    { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+                ],
+            },
+            {
+                source: '/assets/:path*.webm',
+                headers: [
+                    { key: 'Accept-Ranges', value: 'bytes' },
+                    { key: 'Content-Type', value: 'video/webm' },
+                    { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+                ],
+            },
+        ];
+    },
 };
 
 export default nextConfig;

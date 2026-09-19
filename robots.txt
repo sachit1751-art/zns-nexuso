@@ -1,0 +1,10 @@
+# robots.txt for ZNS Nexus
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /*?*
+
+# Sitemap index
+Sitemap: https://ais-dev-h6ie32bfcr4tbj2tkah4pw-455569016805.asia-southeast1.run.app/sitemap.xml
